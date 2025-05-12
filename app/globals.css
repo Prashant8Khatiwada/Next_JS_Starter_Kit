@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 30, 30, 30;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Fix for dark mode */
+.dark .mantine-Paper-root {
+  --paper-bg: var(--mantine-color-dark-7);
+  background-color: var(--paper-bg);
+}
+
+.dark .mantine-Card-root {
+  --card-bg: var(--mantine-color-dark-7);
+  background-color: var(--card-bg);
+}
+
+.dark .mantine-NavLink-root[data-active] {
+  background-color: var(--mantine-color-blue-filled);
+}
+
+.dark .mantine-ActionIcon-root {
+  color: var(--mantine-color-white);
+}
+
+.dark .mantine-Menu-dropdown {
+  background-color: var(--mantine-color-dark-7);
+}
+
+.dark .mantine-Menu-item {
+  color: var(--mantine-color-white);
+}
+
+.dark .mantine-Menu-item[data-hovered] {
+  background-color: var(--mantine-color-dark-5);
+}
+
+.dark .mantine-Table-root th {
+  background-color: var(--mantine-color-dark-6);
+  color: var(--mantine-color-white);
+}
+
+.dark .mantine-Table-root tr:nth-of-type(odd) {
+  background-color: var(--mantine-color-dark-8);
+}
+
+.dark .mantine-Table-root tr:nth-of-type(even) {
+  background-color: var(--mantine-color-dark-7);
+}
+
+.dark .mantine-Table-root tr:hover {
+  background-color: var(--mantine-color-dark-5);
+}
