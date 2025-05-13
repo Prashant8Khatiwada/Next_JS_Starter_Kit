@@ -18,6 +18,7 @@ import {
 } from "@mantine/core";
 import { useAuth } from "@/src/context/auth-context";
 import { InputField } from "@/src/components/ui/input";
+import { SelectField } from "@/src/components/ui/select";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -60,6 +61,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit}>
           <InputField
             label="Email"
+            type="email"
             placeholder="you@example.com"
             required
             value={email}
@@ -73,7 +75,22 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Group position="apart" mt="lg">
+          <SelectField
+            label="Country"
+            placeholder="Select a country"
+            data={[
+              { value: "us", label: "USA" },
+              { value: "ca", label: "Canada" },
+            ]}
+            onChange={(value) => console.log(value)}
+            error="This field is required"
+            required
+            clearable
+            searchable
+            className="max-w-md"
+          />
+
+          <Group justify="apart" mt="lg">
             <Anchor component={Link} href="/forgot-password" size="sm">
               Forgot password?
             </Anchor>
