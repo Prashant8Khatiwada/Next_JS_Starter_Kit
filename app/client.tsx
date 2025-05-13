@@ -1,23 +1,23 @@
-"use client"
-import type React from "react"
-import "@mantine/core/styles.css"
-import "./globals.css"
-import { MantineProvider, ColorSchemeScript } from "@mantine/core"
-import { QueryProvider } from "@/lib/query-provider"
-import { ThemeProvider, useTheme } from "@/context/theme-context"
-import { Header } from "@/components/layout/header"
-import { AuthProvider } from "@/context/auth-context"
+"use client";
+import type React from "react";
+import "@mantine/core/styles.css";
+import "./globals.css";
+import { MantineProvider, ColorSchemeScript } from "@mantine/core";
+import { QueryProvider } from "@/lib/query-provider";
+import { ThemeProvider, useTheme } from "@/context/theme-context";
+import { Header } from "@/components/layout/header";
+import { AuthProvider } from "@/context/auth-context";
 
 function MantineWrapper({ children }: { children: React.ReactNode }) {
-  const { colorScheme } = useTheme()
+  const { colorScheme } = useTheme();
 
-  return <MantineProvider forceColorScheme={colorScheme}>{children}</MantineProvider>
+  return <MantineProvider>{children}</MantineProvider>;
 }
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -39,5 +39,5 @@ export default function RootLayout({
         </QueryProvider>
       </body>
     </html>
-  )
+  );
 }

@@ -1,37 +1,36 @@
-"use client"
+"use client";
+import type React from "react";
 
-import type React from "react"
-
-import { useState } from "react"
-import { TextInput, Button, Select, Checkbox, Stack } from "@mantine/core"
-import { useTasks } from "../hooks/use-tasks"
+import { useState } from "react";
+import { TextInput, Button, Select, Checkbox, Stack } from "@mantine/core";
+import { useTasks } from "../hooks/use-tasks";
 
 export function TaskForm() {
-  const [title, setTitle] = useState("")
-  const [priority, setPriority] = useState<string | null>("medium")
-  const [completed, setCompleted] = useState(false)
-  const { addTask, isLoading } = useTasks()
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState<string | null>("medium");
+  const [completed, setCompleted] = useState(false);
+  const { addTask, isLoading } = useTasks();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!title.trim() || !priority) return
+    if (!title.trim() || !priority) return;
 
     await addTask({
       title,
       priority: priority as "low" | "medium" | "high",
       completed,
-    })
+    });
 
     // Reset form
-    setTitle("")
-    setPriority("medium")
-    setCompleted(false)
-  }
+    setTitle("");
+    setPriority("medium");
+    setCompleted(false);
+  };
 
   return (
     <form onSubmit={handleSubmit}>
-      <Stack spacing="md">
+      <Stack gap="md">
         <TextInput
           label="Task Title"
           placeholder="Enter task title"
@@ -53,12 +52,16 @@ export function TaskForm() {
           required
         />
 
-        <Checkbox label="Mark as completed" checked={completed} onChange={(e) => setCompleted(e.target.checked)} />
+        <Checkbox
+          label="Mark as completed"
+          checked={completed}
+          onChange={(e) => setCompleted(e.target.checked)}
+        />
 
         <Button type="submit" loading={isLoading}>
           Add Task
         </Button>
       </Stack>
     </form>
-  )
+  );
 }
