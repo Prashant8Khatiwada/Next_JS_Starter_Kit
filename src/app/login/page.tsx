@@ -3,11 +3,9 @@
 import type React from "react";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   PasswordInput,
-  Button,
   Paper,
   Title,
   Text,
@@ -17,14 +15,15 @@ import {
 } from "@mantine/core";
 import { useAuth } from "@/src/context/auth-context";
 import { InputField } from "@/src/components/ui/input";
-import { SelectField } from "@/src/components/ui/select";
+import { ActivityIcon, UsersIcon } from "lucide-react";
+import { Checkbox } from "@/src/components/ui/checkbox";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login, isLoading } = useAuth();
-  const router = useRouter();
+  const [checked, setChecked] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,30 +73,23 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <SelectField
-            label="Country"
-            placeholder="Select a country"
-            data={[
-              { value: "us", label: "USA" },
-              { value: "ca", label: "Canada" },
-            ]}
-            onChange={(value) => console.log(value)}
-            error="This field is required"
-            required
-            clearable
-            searchable
-            className="max-w-md"
-          />
 
           <Group justify="apart" mt="lg">
             <Anchor component={Link} href="/forgot-password" size="sm">
               Forgot password?
             </Anchor>
           </Group>
-          <Button fullWidth mt="xl" type="submit" loading={isLoading}>
+          {/* <Button fullWidth mt="xl" type="submit" loading={isLoading}>
             Sign in
-          </Button>
+          </Button> */}
         </form>
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <Checkbox
+            checked={checked}
+            onChange={(event) => setChecked(event.currentTarget.checked)}
+          />
+          <span>Accept Terms and Conditions</span>
+        </label>
 
         <Text size="xs" ta="center" mt={20}>
           Demo credentials:

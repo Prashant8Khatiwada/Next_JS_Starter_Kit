@@ -1,30 +1,63 @@
-"use client";
-
-import * as React from "react";
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { Check } from "lucide-react";
-
+import { Checkbox as MantineCheckbox } from "@mantine/core";
 import { cn } from "@/src/lib/utils";
+import * as React from "react";
 
 const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <CheckboxPrimitive.Root
+  HTMLInputElement,
+  React.ComponentPropsWithoutRef<typeof MantineCheckbox>
+>(({ className, onChange, checked, ...props }, ref) => (
+  <MantineCheckbox
     ref={ref}
-    className={cn(
-      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
-      className
-    )}
+    className={cn("peer cursor-pointer", className)}
+    checked={checked}
+    onChange={onChange}
+    styles={{
+      root: {
+        display: "flex",
+        alignItems: "center",
+      },
+      input: {
+        width: "1.25rem",
+        height: "1.25rem",
+        borderRadius: "0.125rem",
+        border: "1px solid black",
+        "&:checked": {
+          backgroundColor: "var(--primary)",
+          borderColor: "var(--primary)",
+        },
+        "&:focus": {
+          outline: "none",
+          boxShadow: "0 0 0 2px var(--ring)",
+        },
+        "&:disabled": {
+          cursor: "not-allowed",
+          opacity: 0.5,
+        },
+      },
+      label: {
+        display: "flex",
+        marginTop: "0.25rem",
+        alignItems: "center",
+      },
+    }}
+    {...props}
+  />
+));
+Checkbox.displayName = "Checkbox";
+
+const CheckboxGroup = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, children, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col gap-3", className)}
+    role="group"
     {...props}
   >
-    <CheckboxPrimitive.Indicator
-      className={cn("flex items-center justify-center text-current")}
-    >
-      <Check className="h-4 w-4" />
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
+    {children}
+  </div>
 ));
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+CheckboxGroup.displayName = "CheckboxGroup";
 
-export { Checkbox };
+export { Checkbox, CheckboxGroup };
