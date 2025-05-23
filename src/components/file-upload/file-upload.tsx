@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Group, Text, Button, Progress, Box, ActionIcon } from "@mantine/core"
-import { Dropzone, type FileWithPath } from "@mantine/dropzone"
-import { Upload, X, File, Check } from "lucide-react"
+import { useState, useRef } from "react";
+import { Group, Text, Button, Progress, Box, ActionIcon } from "@mantine/core";
+import { Dropzone, type FileWithPath } from "@mantine/dropzone";
+import { Upload, X, File, Check } from "lucide-react";
 
 export function FileUpload({
   onUpload,
@@ -13,72 +13,75 @@ export function FileUpload({
   title = "Upload files",
   description = "Drag files here or click to select files",
 }: {
-  onUpload: (files: File[]) => Promise<void>
-  accept?: string[]
-  maxSize?: number
-  maxFiles?: number
-  title?: string
-  description?: string
+  onUpload: (files: File[]) => Promise<void>;
+  accept?: string[];
+  maxSize?: number;
+  maxFiles?: number;
+  title?: string;
+  description?: string;
 }) {
-  const [files, setFiles] = useState<FileWithPath[]>([])
-  const [progress, setProgress] = useState(0)
-  const [isUploading, setIsUploading] = useState(false)
-  const [isComplete, setIsComplete] = useState(false)
-  const openRef = useRef<() => void>(null)
+  const [files, setFiles] = useState<FileWithPath[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const openRef = useRef<() => void>(null);
 
   const handleDrop = (droppedFiles: FileWithPath[]) => {
     // Limit the number of files
-    const newFiles = [...files, ...droppedFiles].slice(0, maxFiles)
-    setFiles(newFiles)
-  }
+    const newFiles = [...files, ...droppedFiles].slice(0, maxFiles);
+    setFiles(newFiles);
+  };
 
   const handleRemove = (index: number) => {
-    setFiles((current) => current.filter((_, i) => i !== index))
-  }
+    setFiles((current) => current.filter((_, i) => i !== index));
+  };
 
   const handleUpload = async () => {
-    if (files.length === 0) return
+    if (files.length === 0) return;
 
-    setIsUploading(true)
-    setProgress(0)
-    setIsComplete(false)
+    setIsUploading(true);
+    setProgress(0);
+    setIsComplete(false);
 
     // Simulate upload progress
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval)
-          return 100
+          clearInterval(interval);
+          return 100;
         }
-        return prev + 5
-      })
-    }, 100)
+        return prev + 5;
+      });
+    }, 100);
 
     try {
       // Call the onUpload callback with the files
-      await onUpload(files)
+      await onUpload(files);
 
       // Complete the upload
-      clearInterval(interval)
-      setProgress(100)
-      setIsComplete(true)
+      clearInterval(interval);
+      setProgress(100);
+      setIsComplete(true);
 
       // Reset after 2 seconds
       setTimeout(() => {
-        setFiles([])
-        setProgress(0)
-        setIsComplete(false)
-      }, 2000)
+        setFiles([]);
+        setProgress(0);
+        setIsComplete(false);
+      }, 2000);
     } catch (error) {
-      console.error("Upload failed:", error)
-      clearInterval(interval)
+      console.error("Upload failed:", error);
+      clearInterval(interval);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   const previews = files.map((file, index) => (
-    <Box key={index} className="relative flex items-center p-2 mt-2 border rounded">
+    <Box
+      key={index}
+      className="relative flex items-center p-2 mt-2 border rounded"
+    >
       <File size={24} className="mr-2" />
       <div className="flex-1 min-w-0">
         <Text size="sm" className="truncate">
@@ -92,7 +95,7 @@ export function FileUpload({
         <X size={18} />
       </ActionIcon>
     </Box>
-  ))
+  ));
 
   return (
     <div className="relative mb-8">
@@ -106,8 +109,11 @@ export function FileUpload({
         disabled={isUploading || files.length >= maxFiles}
         multiple
       >
-        <div style={{ pointerEvents: "none" }} className="flex flex-col items-center justify-center p-6">
-          <Group position="center">
+        <div
+          style={{ pointerEvents: "none" }}
+          className="flex flex-col items-center justify-center p-6"
+        >
+          <Group justify="center">
             <Dropzone.Accept>
               <Upload size={50} className="text-green-500" />
             </Dropzone.Accept>
@@ -140,12 +146,12 @@ export function FileUpload({
               mb="xs"
               radius="xl"
               color={isComplete ? "green" : "blue"}
-              animate
+              animated
             />
           )}
 
           {isComplete && (
-            <Group position="center" mt="md">
+            <Group justify="center" mt="md">
               <Check size={20} className="text-green-500" />
               <Text size="sm" color="green">
                 Upload complete!
@@ -163,8 +169,10 @@ export function FileUpload({
         disabled={files.length === 0 || isUploading}
         loading={isUploading}
       >
-        {files.length > 0 ? `Upload ${files.length} file${files.length !== 1 ? "s" : ""}` : "Select files"}
+        {files.length > 0
+          ? `Upload ${files.length} file${files.length !== 1 ? "s" : ""}`
+          : "Select files"}
       </Button>
     </div>
-  )
+  );
 }

@@ -118,13 +118,13 @@ export default function InfiniteScrollPage() {
         <div className="space-y-4">
           {posts.map((post, index) => (
             <Card
-              key={post.id}
+              key={`${post.id}-${index}`}
               withBorder
               p="lg"
               radius="md"
               ref={index === posts.length - 1 ? lastItemRef : null}
             >
-              <Group position="apart" mb="xs">
+              <Group justify="apart" mb="xs">
                 <Group>
                   <Avatar color="blue" radius="xl">
                     {post.user?.name?.charAt(0) || "?"}

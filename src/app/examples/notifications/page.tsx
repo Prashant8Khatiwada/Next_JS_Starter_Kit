@@ -161,7 +161,7 @@ export default function NotificationsPage() {
                 showNotification(values);
               })}
             >
-              <Stack spacing="md">
+              <Stack gap="md">
                 <TextInput
                   label="Title"
                   placeholder="Notification title"
@@ -249,7 +249,7 @@ export default function NotificationsPage() {
                   />
                 </Group>
 
-                <Group position="right" mt="md">
+                <Group justify="flex-end" mt="md">
                   <Button type="submit">Show Notification</Button>
                 </Group>
               </Stack>
@@ -262,7 +262,7 @@ export default function NotificationsPage() {
                 Notification Examples
               </Title>
 
-              <Stack spacing="md">
+              <Stack gap="md">
                 <Button
                   fullWidth
                   leftSection={<Bell size={16} />}
@@ -365,7 +365,7 @@ export default function NotificationsPage() {
                 Advanced Features
               </Title>
 
-              <Stack spacing="md">
+              <Stack gap="md">
                 <Button fullWidth onClick={showMultipleNotifications}>
                   Show Multiple Notifications
                 </Button>
