@@ -198,11 +198,11 @@ export function ProductsTable() {
       key: "name",
       title: "Product",
       render: (product) => (
-        <Group spacing="sm">
+        <Group gap="sm">
           {product.image && (
             <Avatar src={product.image} size={30} radius="xl" />
           )}
-          <Text weight={500}>{product.name}</Text>
+          <Text fw={500}>{product.name}</Text>
         </Group>
       ),
       sortable: true,
@@ -216,9 +216,7 @@ export function ProductsTable() {
     {
       key: "price",
       title: "Price",
-      render: (product) => (
-        <Text weight={500}>${product.price.toFixed(2)}</Text>
-      ),
+      render: (product) => <Text fw={500}>${product.price.toFixed(2)}</Text>,
       sortable: true,
     },
     {
@@ -340,8 +338,8 @@ export function ProductsTable() {
   // Custom filters component
   const FiltersComponent = (
     <div>
-      <Group position="apart" mb="md">
-        <Text weight={500}>Filters</Text>
+      <Group justify="space-between" mb="md">
+        <Text fw={500}>Filters</Text>
         <Button
           variant="subtle"
           leftSection={<Filter size={16} />}
@@ -385,7 +383,7 @@ export function ProductsTable() {
       </div>
 
       <div className="mt-4">
-        <Text size="sm" weight={500} mb="xs">
+        <Text size="sm" fw={500} mb="xs">
           Price Range
         </Text>
         <RangeSlider
@@ -401,7 +399,7 @@ export function ProductsTable() {
           ]}
           mb="sm"
         />
-        <Group position="apart" mb="md">
+        <Group justify="space-between" mb="md">
           <Text size="xs">${filters.minPrice}</Text>
           <Text size="xs">${filters.maxPrice}</Text>
         </Group>

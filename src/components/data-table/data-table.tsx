@@ -232,7 +232,7 @@ export function DataTable<T>({
                 (onEdit || onDelete || actions.length > 0 ? 1 : 0)
               }
             >
-              <Text color="red" align="center" py="lg">
+              <Text color="red" ta="center" py="lg">
                 Error: {error.message}
               </Text>
             </td>
@@ -252,7 +252,7 @@ export function DataTable<T>({
                 (onEdit || onDelete || actions.length > 0 ? 1 : 0)
               }
             >
-              <Text align="center" py="lg">
+              <Text ta="center" py="lg">
                 No data found
               </Text>
             </td>
@@ -296,7 +296,7 @@ export function DataTable<T>({
 
               {(onEdit || onDelete || onView || actions.length > 0) && (
                 <td onClick={(e) => e.stopPropagation()}>
-                  <Group spacing={4} position="left">
+                  <Group gap={4} justify="flex-start">
                     {onView && (
                       <Tooltip label="View">
                         <ActionIcon onClick={() => onView(item)} size="sm">
@@ -338,7 +338,7 @@ export function DataTable<T>({
                               action.condition(item) && (
                                 <Menu.Item
                                   key={i}
-                                  icon={action.icon}
+                                  leftSection={action.icon}
                                   onClick={() => action.onClick(item)}
                                 >
                                   {action.label}
@@ -347,7 +347,7 @@ export function DataTable<T>({
                             ) : (
                               <Menu.Item
                                 key={i}
-                                icon={action.icon}
+                                leftSection={action.icon}
                                 onClick={() => action.onClick(item)}
                               >
                                 {action.label}
@@ -371,10 +371,10 @@ export function DataTable<T>({
     <div>
       {/* Toolbar */}
       <div className="mb-4">
-        <Group position="apart">
+        <Group justify="space-between">
           <Group>
             {onCreate && (
-              <Button leftIcon={<Plus size={16} />} onClick={onCreate}>
+              <Button leftSection={<Plus size={16} />} onClick={onCreate}>
                 Add New
               </Button>
             )}
@@ -390,7 +390,7 @@ export function DataTable<T>({
                   {bulkActions.map((action, i) => (
                     <Menu.Item
                       key={i}
-                      icon={action.icon}
+                      leftSection={action.icon}
                       onClick={() => action.onClick(getSelectedItems())}
                     >
                       {action.label}
@@ -405,7 +405,7 @@ export function DataTable<T>({
             {onExport && (
               <Button
                 variant="outline"
-                leftIcon={<Download size={16} />}
+                leftSection={<Download size={16} />}
                 onClick={onExport}
               >
                 Export
@@ -415,7 +415,7 @@ export function DataTable<T>({
             {onImport && (
               <Button
                 variant="outline"
-                leftIcon={<Upload size={16} />}
+                leftSection={<Upload size={16} />}
                 onClick={onImport}
               >
                 Import
@@ -434,7 +434,7 @@ export function DataTable<T>({
 
       {/* Table */}
       <Paper withBorder>
-        <Box sx={{ overflowX: "auto" }}>
+        <Box style={{ overflowX: "auto" }}>
           <Table striped highlightOnHover>
             {renderHeader()}
             {renderBody()}
@@ -444,13 +444,13 @@ export function DataTable<T>({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Group position="apart" mt="md">
+        <Group justify="space-between" mt="md">
           <Text size="sm">
             Showing {Math.min(pageSize, data.length)} of{" "}
             {totalItems || data.length} items
           </Text>
 
-          <Group spacing="xs">
+          <Group gap="xs">
             <select
               value={pageSize}
               onChange={(e) => changePageSize(Number(e.target.value))}
