@@ -12,11 +12,10 @@ import {
   Container,
   Group,
   Anchor,
+  Button,
 } from "@mantine/core";
 import { useAuth } from "@/src/context/auth-context";
-import { InputField } from "@/src/components/ui/input";
-import { ActivityIcon, UsersIcon } from "lucide-react";
-import { Checkbox } from "@/src/components/ui/checkbox";
+import { Input } from "@/src/components/ui/input";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -57,7 +56,7 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <InputField
+          <Input
             label="Email"
             type="email"
             placeholder="you@example.com"
@@ -79,17 +78,10 @@ export default function LoginPage() {
               Forgot password?
             </Anchor>
           </Group>
-          {/* <Button fullWidth mt="xl" type="submit" loading={isLoading}>
+          <Button fullWidth mt="xl" type="submit" loading={isLoading}>
             Sign in
-          </Button> */}
+          </Button>
         </form>
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <Checkbox
-            checked={checked}
-            onChange={(event) => setChecked(event.currentTarget.checked)}
-          />
-          <span>Accept Terms and Conditions</span>
-        </label>
 
         <Text size="xs" ta="center" mt={20}>
           Demo credentials:

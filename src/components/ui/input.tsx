@@ -9,7 +9,7 @@ interface InputFieldProps extends TextInputProps {
 }
 
 // Use forwardRef to support ref forwarding, matching the original InputField
-export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+export const Input = forwardRef<HTMLInputElement, InputFieldProps>(
   (
     {
       label,
@@ -50,7 +50,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   }
 );
 
-InputField.displayName = "InputField";
+Input.displayName = "Input";
 
 // styles={{
 //   label: {

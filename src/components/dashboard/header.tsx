@@ -7,7 +7,7 @@ import {
   Menu,
   Text,
   UnstyledButton,
-  Group,@/src/components/ui/theme-toggle
+  Group,
   TextInput,
   ActionIcon,
   Box,
@@ -24,7 +24,8 @@ import dynamic from "next/dynamic";
 
 // Dynamically import ThemeToggle with no SSR to prevent hydration issues
 const ThemeToggle = dynamic(
-  () => import("@/components/ui/theme-toggle").then((mod) => mod.ThemeToggle),
+  () =>
+    import("@/src/components/ui/theme-toggle").then((mod) => mod.ThemeToggle),
   {
     ssr: false,
   }
