@@ -14,6 +14,8 @@ import {
   Box,
   Menu,
   Tooltip,
+  Checkbox,
+  Center,
 } from "@mantine/core";
 import {
   Edit,
@@ -32,6 +34,7 @@ export interface DataTableColumn<T> {
   render?: (item: T, index: number) => React.ReactNode;
   sortable?: boolean;
   width?: string | number;
+  minWidth?: string | number;
 }
 
 export interface DataTableProps<T> {
@@ -154,23 +157,24 @@ export function DataTable<T>({
   // Render table header
   const renderHeader = () => {
     return (
-      <thead>
-        <tr>
+      <Table.Thead>
+        <Table.Tr>
           {bulkActions.length > 0 && (
-            <th style={{ width: "40px" }}>
-              <input
-                type="checkbox"
+            <Table.Th style={{ width: "40px" }}>
+              <Checkbox
                 checked={data.length > 0 && selectedRows.size === data.length}
                 onChange={toggleSelectAll}
-                className="rounded text-blue-500 focus:ring-blue-500"
               />
-            </th>
+            </Table.Th>
           )}
 
           {columns.map((column) => (
-            <th
+            <Table.Th
               key={column.key}
-              style={{ width: column.width }}
+              style={{
+                width: column.width || "auto",
+                minWidth: column.minWidth || "150px",
+              }}
               className={
                 column.sortable
                   ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -180,22 +184,20 @@ export function DataTable<T>({
                 column.sortable ? () => handleSort(column.key) : undefined
               }
             >
-              <div className="flex items-center">
+              <Group justify="flex-start" gap="xs">
                 {column.title}
                 {sortBy === column.key && (
-                  <span className="ml-1">
-                    {sortDirection === "asc" ? "↑" : "↓"}
-                  </span>
+                  <span>{sortDirection === "asc" ? "↑" : "↓"}</span>
                 )}
-              </div>
-            </th>
+              </Group>
+            </Table.Th>
           ))}
 
           {(onEdit || onDelete || onView || actions.length > 0) && (
-            <th style={{ width: "80px" }}>Actions</th>
+            <Table.Th style={{ width: "80px" }}>Actions</Table.Th>
           )}
-        </tr>
-      </thead>
+        </Table.Tr>
+      </Table.Thead>
     );
   };
 
@@ -203,29 +205,29 @@ export function DataTable<T>({
   const renderBody = () => {
     if (isLoading) {
       return (
-        <tbody>
-          <tr>
-            <td
+        <Table.Tbody>
+          <Table.Tr>
+            <Table.Td
               colSpan={
                 columns.length +
                 (bulkActions.length > 0 ? 1 : 0) +
                 (onEdit || onDelete || actions.length > 0 ? 1 : 0)
               }
             >
-              <div className="flex justify-center py-8">
+              <Center py="xl">
                 <Loader />
-              </div>
-            </td>
-          </tr>
-        </tbody>
+              </Center>
+            </Table.Td>
+          </Table.Tr>
+        </Table.Tbody>
       );
     }
 
     if (error) {
       return (
-        <tbody>
-          <tr>
-            <td
+        <Table.Tbody>
+          <Table.Tr>
+            <Table.Td
               colSpan={
                 columns.length +
                 (bulkActions.length > 0 ? 1 : 0) +
@@ -235,17 +237,17 @@ export function DataTable<T>({
               <Text color="red" ta="center" py="lg">
                 Error: {error.message}
               </Text>
-            </td>
-          </tr>
-        </tbody>
+            </Table.Td>
+          </Table.Tr>
+        </Table.Tbody>
       );
     }
 
     if (data.length === 0) {
       return (
-        <tbody>
-          <tr>
-            <td
+        <Table.Tbody>
+          <Table.Tr>
+            <Table.Td
               colSpan={
                 columns.length +
                 (bulkActions.length > 0 ? 1 : 0) +
@@ -255,47 +257,49 @@ export function DataTable<T>({
               <Text ta="center" py="lg">
                 No data found
               </Text>
-            </td>
-          </tr>
-        </tbody>
+            </Table.Td>
+          </Table.Tr>
+        </Table.Tbody>
       );
     }
 
     return (
-      <tbody>
+      <Table.Tbody>
         {data.map((item, index) => {
           const id = getRowId(item);
           return (
-            <tr
+            <Table.Tr
               key={id}
               onClick={onRowClick ? () => onRowClick(item) : undefined}
-              className={
+              className={`${
                 onRowClick
                   ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                   : ""
-              }
+              } ${
+                index % 2 === 0
+                  ? "bg-gray-50 dark:bg-gray-800"
+                  : "bg-white dark:bg-gray-900"
+              }`}
             >
               {bulkActions.length > 0 && (
-                <td onClick={(e) => e.stopPropagation()}>
-                  <input
-                    type="checkbox"
+                <Table.Td onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
                     checked={selectedRows.has(id)}
                     onChange={() => toggleRowSelection(id)}
-                    className="rounded text-blue-500 focus:ring-blue-500"
                   />
-                </td>
+                </Table.Td>
               )}
 
               {columns.map((column) => (
-                <td key={`${id}-${column.key}`}>
+                <Table.Td key={`${id}-${column.key}`}>
                   {column.render
                     ? column.render(item, index)
                     : (item as any)[column.key]}
-                </td>
+                </Table.Td>
               ))}
 
               {(onEdit || onDelete || onView || actions.length > 0) && (
-                <td onClick={(e) => e.stopPropagation()}>
+                <Table.Td onClick={(e) => e.stopPropagation()}>
                   <Group gap={4} justify="flex-start">
                     {onView && (
                       <Tooltip label="View">
@@ -358,12 +362,12 @@ export function DataTable<T>({
                       </Menu>
                     )}
                   </Group>
-                </td>
+                </Table.Td>
               )}
-            </tr>
+            </Table.Tr>
           );
         })}
-      </tbody>
+      </Table.Tbody>
     );
   };
 
@@ -435,7 +439,12 @@ export function DataTable<T>({
       {/* Table */}
       <Paper withBorder>
         <Box style={{ overflowX: "auto" }}>
-          <Table striped highlightOnHover>
+          <Table
+            className="bg-[#FCFCFC] w-full"
+            verticalSpacing={"lg"}
+            striped
+            highlightOnHover
+          >
             {renderHeader()}
             {renderBody()}
           </Table>

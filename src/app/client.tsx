@@ -9,8 +9,6 @@ import { Header } from "@/src/components/layout/header";
 import { AuthProvider } from "@/src/context/auth-context";
 
 function MantineWrapper({ children }: { children: React.ReactNode }) {
-  const { colorScheme } = useTheme();
-
   return <MantineProvider>{children}</MantineProvider>;
 }
 

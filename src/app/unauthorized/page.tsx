@@ -1,5 +1,5 @@
-import { Container, Title, Text, Button, Group } from "@mantine/core"
-import Link from "next/link"
+import { Container, Title, Text, Button, Group } from "@mantine/core";
+import Link from "next/link";
 
 export default function UnauthorizedPage() {
   return (
@@ -11,11 +11,11 @@ export default function UnauthorizedPage() {
       <Text size="sm" c="dimmed" className="mb-8">
         Please contact your administrator if you believe this is an error.
       </Text>
-      <Group position="center">
+      <Group justify="center">
         <Button component={Link} href="/" variant="subtle" size="md">
           Take me back to home page
         </Button>
       </Group>
     </Container>
-  )
+  );
 }

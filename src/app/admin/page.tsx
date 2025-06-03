@@ -78,7 +78,7 @@ export default function AdminPage() {
         <Grid>
           <Grid.Col span={12}>
             <Paper shadow="xs" p="md" withBorder>
-              <Group position="apart" mb="md">
+              <Group justify="space-between" mb="md">
                 <Title order={3}>User Management</Title>
                 <Button leftSection={<Plus size={16} />}>Add User</Button>
               </Group>
