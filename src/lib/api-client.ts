@@ -106,14 +106,18 @@ export const api = {
   },
 }
 
-// Example usage of the API client with TypeScript
+
 export function createApiService<T>(endpoint: string) {
   return {
     getAll: (params?: Record<string, any>) => api.get<T[]>(endpoint, params),
     getById: (id: string) => api.get<T>(`${endpoint}/${id}`),
-    create: (data: Omit<T, "id">) => api.post<T>(endpoint, data),
-    update: (id: string, data: Partial<T>) => api.put<T>(`${endpoint}/${id}`, data),
-    patch: (id: string, data: Partial<T>) => api.patch<T>(`${endpoint}/${id}`, data),
+    create: (data: Omit<T, "id">) => api.post<T, Omit<T, "id">>(endpoint, data),
+    update: (id: string, data: Partial<T>) => api.put<T, Partial<T>>(`${endpoint}/${id}`, data),
+    patch: (id: string, data: Partial<T>) => api.patch<T, Partial<T>>(`${endpoint}/${id}`, data),
     remove: (id: string) => api.delete<void>(`${endpoint}/${id}`),
-  }
+    upload: (formData: FormData, subPath: string = "upload") =>
+      api.upload<T>(`${endpoint}/${subPath}`, formData),
+    download: (params?: Record<string, any>, subPath: string = "download") =>
+      api.download(`${endpoint}/${subPath}`, params),
+  };
 }

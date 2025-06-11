@@ -1,6 +1,7 @@
 "use client";
 
-import { AuthGuard } from "@/src/components/auth-guard";
+import type React from "react";
+
 import {
   Title,
   Paper,
@@ -12,133 +13,462 @@ import {
   Select,
   TextInput,
   Button,
-  RangeSlider,
   ActionIcon,
   Image,
   Loader,
   Box,
+  Checkbox,
+  Collapse,
+  MultiSelect,
+  Stack,
+  ScrollArea,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
+import { Search, Filter, X, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { useFilters } from "@/src/hooks/use-filters";
-import { Search, Filter, X, Star } from "lucide-react";
 import { DashboardLayout } from "@/src/components/dashboard/layout";
+import { AuthGuard } from "@/src/components/auth-guard";
 
-// Product type from Fake Store API
+// Enhanced Product type
 interface Product {
   id: number;
   title: string;
   price: number;
   description: string;
   category: string;
+  brand: string;
+  fuelType?: string;
+  bodyType?: string;
+  transmission?: string;
+  seats?: number;
   image: string;
   rating: {
     rate: number;
     count: number;
   };
+  inStock: boolean;
+  tags: string[];
 }
 
 interface ProductFilters {
   search: string;
-  category: string;
+  categories: string[];
+  brands: string[];
+  priceRanges: string[];
+  fuelTypes: string[];
+  bodyTypes: string[];
+  transmissions: string[];
+  seats: string[];
   minPrice: number;
   maxPrice: number;
   minRating: number;
+  inStockOnly: boolean;
+  tags: string[];
 }
 
+// Enhanced mock data with automotive-style filters
+const mockProducts: Product[] = [
+  {
+    id: 1,
+    title: "Maruti Swift",
+    price: 650000,
+    description: "Compact hatchback with excellent fuel efficiency",
+    category: "Hatchback",
+    brand: "Maruti",
+    fuelType: "Petrol",
+    bodyType: "Hatchback",
+    transmission: "Manual",
+    seats: 5,
+    image:
+      "https://images.unsplash.com/photo-1549399736-8e3c8b8b8b8b?w=300&h=200&fit=crop",
+    rating: { rate: 4.2, count: 150 },
+    inStock: true,
+    tags: ["fuel-efficient", "compact", "reliable"],
+  },
+  {
+    id: 2,
+    title: "Tata Nexon EV",
+    price: 1400000,
+    description: "Electric SUV with modern features",
+    category: "SUV",
+    brand: "Tata",
+    fuelType: "Electric",
+    bodyType: "SUV",
+    transmission: "Automatic",
+    seats: 5,
+    image:
+      "https://images.unsplash.com/photo-1549399736-8e3c8b8b8b8b?w=300&h=200&fit=crop",
+    rating: { rate: 4.5, count: 89 },
+    inStock: true,
+    tags: ["electric", "eco-friendly", "modern"],
+  },
+  {
+    id: 3,
+    title: "Hyundai Creta",
+    price: 1200000,
+    description: "Premium compact SUV",
+    category: "SUV",
+    brand: "Hyundai",
+    fuelType: "Petrol",
+    bodyType: "SUV",
+    transmission: "Automatic",
+    seats: 5,
+    image:
+      "https://images.unsplash.com/photo-1549399736-8e3c8b8b8b8b?w=300&h=200&fit=crop",
+    rating: { rate: 4.3, count: 200 },
+    inStock: true,
+    tags: ["premium", "spacious", "comfortable"],
+  },
+  {
+    id: 4,
+    title: "Toyota Innova Crysta",
+    price: 1800000,
+    description: "7-seater MPV for families",
+    category: "MPV",
+    brand: "Toyota",
+    fuelType: "Diesel",
+    bodyType: "MPV",
+    transmission: "Manual",
+    seats: 7,
+    image:
+      "https://images.unsplash.com/photo-1549399736-8e3c8b8b8b8b?w=300&h=200&fit=crop",
+    rating: { rate: 4.4, count: 120 },
+    inStock: false,
+    tags: ["family", "spacious", "reliable"],
+  },
+  {
+    id: 5,
+    title: "Mahindra Thar",
+    price: 1500000,
+    description: "Off-road SUV with 4WD",
+    category: "SUV",
+    brand: "Mahindra",
+    fuelType: "Diesel",
+    bodyType: "SUV",
+    transmission: "Manual",
+    seats: 4,
+    image:
+      "https://images.unsplash.com/photo-1549399736-8e3c8b8b8b8b?w=300&h=200&fit=crop",
+    rating: { rate: 4.1, count: 95 },
+    inStock: true,
+    tags: ["off-road", "adventure", "rugged"],
+  },
+  {
+    id: 6,
+    title: "KIA Seltos",
+    price: 1100000,
+    description: "Feature-rich compact SUV",
+    category: "SUV",
+    brand: "KIA",
+    fuelType: "Petrol",
+    bodyType: "SUV",
+    transmission: "Automatic",
+    seats: 5,
+    image:
+      "https://images.unsplash.com/photo-1549399736-8e3c8b8b8b8b?w=300&h=200&fit=crop",
+    rating: { rate: 4.2, count: 110 },
+    inStock: true,
+    tags: ["feature-rich", "stylish", "tech-savvy"],
+  },
+];
+
+// Filter options with counts
+const filterOptions = {
+  priceRanges: [
+    { value: "0-500000", label: "Under 5 lakh", count: 1 },
+    { value: "500000-1000000", label: "5-10 lakh", count: 1 },
+    { value: "1000000-1500000", label: "10-15 lakh", count: 3 },
+    { value: "1500000-2000000", label: "15-20 lakh", count: 1 },
+    { value: "2000000-999999999", label: "Above 20 lakh", count: 0 },
+  ],
+  brands: [
+    { value: "Maruti", label: "Maruti", count: 1 },
+    { value: "Tata", label: "Tata", count: 1 },
+    { value: "Hyundai", label: "Hyundai", count: 1 },
+    { value: "Toyota", label: "Toyota", count: 1 },
+    { value: "Mahindra", label: "Mahindra", count: 1 },
+    { value: "KIA", label: "KIA", count: 1 },
+  ],
+  fuelTypes: [
+    { value: "Petrol", label: "Petrol", count: 3 },
+    { value: "Diesel", label: "Diesel", count: 2 },
+    { value: "Electric", label: "Electric", count: 1 },
+    { value: "CNG", label: "CNG", count: 0 },
+    { value: "Hybrid", label: "Hybrid", count: 0 },
+  ],
+  bodyTypes: [
+    { value: "Hatchback", label: "Hatchback", count: 1 },
+    { value: "SUV", label: "SUV", count: 4 },
+    { value: "MPV", label: "MPV", count: 1 },
+    { value: "Sedan", label: "Sedan", count: 0 },
+  ],
+  transmissions: [
+    { value: "Manual", label: "Manual", count: 3 },
+    { value: "Automatic", label: "Automatic", count: 3 },
+  ],
+  seats: [
+    { value: "4", label: "4 Seater", count: 1 },
+    { value: "5", label: "5 Seater", count: 4 },
+    { value: "7", label: "7 Seater", count: 1 },
+  ],
+};
+
 export default function FilteringPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [filteredProducts, setFilteredProducts] =
+    useState<Product[]>(mockProducts);
+  const [loading, setLoading] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    budget: true,
+    brand: true,
+    fuelType: true,
+    bodyType: false,
+    transmission: false,
+    seats: false,
+  });
 
   // Initialize filters
   const { filters, setFilter, updateFilters, resetFilters, removeFilter } =
     useFilters<ProductFilters>({
       initialFilters: {
         search: "",
-        category: "",
+        categories: [],
+        brands: [],
+        priceRanges: [],
+        fuelTypes: [],
+        bodyTypes: [],
+        transmissions: [],
+        seats: [],
         minPrice: 0,
-        maxPrice: 1000,
+        maxPrice: 3000000,
         minRating: 0,
+        inStockOnly: false,
+        tags: [],
       },
     });
 
-  // Fetch products from Fake Store API
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("https://fakestoreapi.com/products");
-        const data = await response.json();
-        setProducts(data);
-
-        // Extract unique categories
-        const uniqueCategories = [
-          ...new Set(data.map((product: Product) => product.category)),
-        ];
-        setCategories(uniqueCategories);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch products")
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
   // Apply filters
   useEffect(() => {
-    if (!products.length) return;
+    setLoading(true);
 
-    let result = [...products];
+    // Simulate API delay
+    const timer = setTimeout(() => {
+      let result = [...products];
 
-    // Search filter
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
+      // Search filter
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        result = result.filter(
+          (product) =>
+            product.title.toLowerCase().includes(searchLower) ||
+            product.description.toLowerCase().includes(searchLower) ||
+            product.brand.toLowerCase().includes(searchLower) ||
+            product.category.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Brand filter
+      if ((filters.brands ?? []).length > 0) {
+        result = result.filter((product) =>
+          filters.brands?.includes(product.brand)
+        );
+      }
+
+      // Price range filter
+      if ((filters.priceRanges ?? []).length > 0) {
+        result = result.filter((product) => {
+          return filters?.priceRanges?.some((range) => {
+            const [min, max] = range.split("-").map(Number);
+            return product.price >= min && product.price <= max;
+          });
+        });
+      }
+
+      // Fuel type filter
+      if ((filters.fuelTypes ?? []).length > 0) {
+        result = result.filter(
+          (product) =>
+            product.fuelType &&
+            (filters.fuelTypes ?? []).includes(product.fuelType)
+        );
+      }
+
+      // Body type filter
+      if ((filters.bodyTypes ?? []).length > 0) {
+        result = result.filter(
+          (product) =>
+            product.bodyType &&
+            (filters.bodyTypes ?? []).includes(product.bodyType)
+        );
+      }
+
+      // Transmission filter
+      if ((filters.transmissions ?? []).length > 0) {
+        result = result.filter(
+          (product) =>
+            product.transmission &&
+            (filters.transmissions ?? []).includes(product.transmission)
+        );
+      }
+
+      // Seats filter
+      if ((filters.seats ?? []).length > 0) {
+        result = result.filter(
+          (product) =>
+            product.seats && filters?.seats?.includes(product.seats.toString())
+        );
+      }
+
+      // Price range filter (slider)
       result = result.filter(
         (product) =>
-          product.title.toLowerCase().includes(searchLower) ||
-          product.description.toLowerCase().includes(searchLower) ||
-          product.category.toLowerCase().includes(searchLower)
+          product.price >= (filters.minPrice ?? 0) &&
+          product.price <= (filters.maxPrice ?? 3000000)
       );
-    }
 
-    // Category filter
-    if (filters.category) {
-      result = result.filter(
-        (product) => product.category === filters.category
-      );
-    }
+      // Rating filter
+      if ((filters.minRating ?? 0) > 0) {
+        result = result.filter(
+          (product) => product.rating.rate >= (filters.minRating ?? 0)
+        );
+      }
 
-    // Price range filter
-    result = result.filter(
-      (product) =>
-        product.price >= filters.minPrice && product.price <= filters.maxPrice
-    );
+      // In stock filter
+      if (filters.inStockOnly) {
+        result = result.filter((product) => product.inStock);
+      }
 
-    // Rating filter
-    if (filters.minRating > 0) {
-      result = result.filter(
-        (product) => product.rating.rate >= filters.minRating
-      );
-    }
+      // Tags filter
+      if ((filters.tags ?? []).length > 0) {
+        result = result.filter((product) =>
+          (filters.tags ?? []).some((tag) => product.tags.includes(tag))
+        );
+      }
 
-    setFilteredProducts(result);
+      setFilteredProducts(result);
+      setLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [filters, products]);
 
-  // Handle price range change
-  const handlePriceChange = (value: [number, number]) => {
-    updateFilters({
-      minPrice: value[0],
-      maxPrice: value[1],
-    });
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
-  if (loading) {
+  const handleCheckboxFilter = (
+    filterKey: keyof ProductFilters,
+    value: string
+  ) => {
+    const currentValues = filters[filterKey] as string[];
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter((v) => v !== value)
+      : [...currentValues, value];
+
+    setFilter(filterKey, newValues);
+  };
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.search) count++;
+    if ((filters.brands?.length ?? 0) > 0) count++;
+    if ((filters.priceRanges?.length ?? 0) > 0) count++;
+    if ((filters.fuelTypes?.length ?? 0) > 0) count++;
+    if ((filters.bodyTypes?.length ?? 0) > 0) count++;
+    if ((filters.transmissions?.length ?? 0) > 0) count++;
+    if ((filters.seats?.length ?? 0) > 0) count++;
+    if ((filters.minRating ?? 0) > 0) count++;
+    if (filters.inStockOnly) count++;
+    if ((filters.tags?.length ?? 0) > 0) count++;
+    return count;
+  };
+  const FilterSection = ({
+    title,
+    sectionKey,
+    children,
+  }: {
+    title: string;
+    sectionKey: string;
+    children: React.ReactNode;
+  }) => (
+    <Paper withBorder p="md" radius="md" mb="sm">
+      <Group
+        justify="apart"
+        className="cursor-pointer"
+        onClick={() => toggleSection(sectionKey)}
+      >
+        <Text fw={500}>{title}</Text>
+        {openSections[sectionKey] ? (
+          <ChevronUp size={16} />
+        ) : (
+          <ChevronDown size={16} />
+        )}
+      </Group>
+      <Collapse in={openSections[sectionKey]}>
+        <Box mt="md">{children}</Box>
+      </Collapse>
+    </Paper>
+  );
+
+  const CheckboxFilterGroup = ({
+    options,
+    filterKey,
+    searchable = false,
+  }: {
+    options: Array<{ value: string; label: string; count: number }>;
+    filterKey: keyof ProductFilters;
+    searchable?: boolean;
+  }) => {
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const filteredOptions = searchable
+      ? options.filter((option) =>
+          option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : options;
+
+    return (
+      <Box>
+        {searchable && (
+          <TextInput
+            placeholder="Search..."
+            leftSection={<Search size={14} />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            mb="sm"
+            size="xs"
+          />
+        )}
+        <ScrollArea.Autosize mah={200}>
+          <Stack>
+            {filteredOptions.map((option) => (
+              <Checkbox
+                key={option.value}
+                label={
+                  <Group justify="apart" style={{ width: "100%" }}>
+                    <Text size="sm">{option.label}</Text>
+                    <Text size="xs" c="dimmed">
+                      ({option.count})
+                    </Text>
+                  </Group>
+                }
+                checked={(filters[filterKey] as string[]).includes(
+                  option.value
+                )}
+                onChange={() => handleCheckboxFilter(filterKey, option.value)}
+                disabled={option.count === 0}
+              />
+            ))}
+          </Stack>
+        </ScrollArea.Autosize>
+      </Box>
+    );
+  };
+
+  if (loading && filteredProducts.length === 0) {
     return (
       <AuthGuard>
         <DashboardLayout>
@@ -150,178 +480,194 @@ export default function FilteringPage() {
     );
   }
 
-  if (error) {
-    return (
-      <AuthGuard>
-        <DashboardLayout>
-          <Paper p="xl" withBorder>
-            <Text c="red" ta="center">
-              Error: {error.message}
-            </Text>
-            <Button mt="md" onClick={() => window.location.reload()}>
-              Try Again
-            </Button>
-          </Paper>
-        </DashboardLayout>
-      </AuthGuard>
-    );
-  }
-
   return (
     <AuthGuard>
       <DashboardLayout>
         <Title order={2} mb="lg">
-          Advanced Filtering Example
+          Advanced Filtering System
         </Title>
 
         <Grid>
-          <Grid.Col span={12} md={3}>
-            <Paper withBorder p="md" radius="md" className="sticky top-4">
-              <Title order={4} mb="md">
-                Filters
-              </Title>
+          <Grid.Col span={{ base: 12, md: 3 }}>
+            <Box className="sticky top-4">
+              <Paper withBorder p="md" radius="md" mb="lg">
+                <Group justify="apart" mb="md">
+                  <Title order={4}>
+                    Filters{" "}
+                    {getActiveFiltersCount() > 0 &&
+                      `(${getActiveFiltersCount()})`}
+                  </Title>
+                  <Button
+                    variant="subtle"
+                    leftSection={<X size={16} />}
+                    onClick={resetFilters}
+                    size="xs"
+                  >
+                    Clear All
+                  </Button>
+                </Group>
 
-              <Box className="space-y-4">
                 <TextInput
-                  label="Search"
-                  placeholder="Search products..."
+                  placeholder="Search vehicles..."
                   leftSection={<Search size={16} />}
                   value={filters.search}
                   onChange={(e) => setFilter("search", e.target.value)}
+                  mb="md"
                 />
 
+                <Checkbox
+                  label="In Stock Only"
+                  checked={filters.inStockOnly}
+                  onChange={(e) => setFilter("inStockOnly", e.target.checked)}
+                  mb="md"
+                />
+              </Paper>
+
+              <FilterSection title="Budget" sectionKey="budget">
+                <CheckboxFilterGroup
+                  options={filterOptions.priceRanges}
+                  filterKey="priceRanges"
+                />
+              </FilterSection>
+
+              <FilterSection title="Brand" sectionKey="brand">
+                <CheckboxFilterGroup
+                  options={filterOptions.brands}
+                  filterKey="brands"
+                  searchable
+                />
+              </FilterSection>
+
+              <FilterSection title="Fuel Type" sectionKey="fuelType">
+                <CheckboxFilterGroup
+                  options={filterOptions.fuelTypes}
+                  filterKey="fuelTypes"
+                />
+              </FilterSection>
+
+              <FilterSection title="Body Type" sectionKey="bodyType">
+                <CheckboxFilterGroup
+                  options={filterOptions.bodyTypes}
+                  filterKey="bodyTypes"
+                />
+              </FilterSection>
+
+              <FilterSection title="Transmission" sectionKey="transmission">
+                <CheckboxFilterGroup
+                  options={filterOptions.transmissions}
+                  filterKey="transmissions"
+                />
+              </FilterSection>
+
+              <FilterSection title="Seats" sectionKey="seats">
+                <CheckboxFilterGroup
+                  options={filterOptions.seats}
+                  filterKey="seats"
+                />
+              </FilterSection>
+
+              <Paper withBorder p="md" radius="md">
+                <Text fw={500} mb="md">
+                  Advanced Filters
+                </Text>
+
+                <Text size="sm" mb="xs">
+                  Minimum Rating
+                </Text>
                 <Select
-                  label="Category"
-                  placeholder="Select category"
+                  placeholder="Any rating"
                   data={[
-                    { value: "", label: "All Categories" },
-                    ...categories.map((category) => ({
-                      value: category,
-                      label: category,
-                    })),
+                    { value: "0", label: "Any rating" },
+                    { value: "3", label: "3+ stars" },
+                    { value: "4", label: "4+ stars" },
+                    { value: "4.5", label: "4.5+ stars" },
                   ]}
-                  value={filters.category}
-                  onChange={(value) => setFilter("category", value || "")}
+                  value={(filters.minRating ?? 0).toString()}
+                  onChange={(value) =>
+                    setFilter("minRating", Number(value) || 0)
+                  }
+                  mb="md"
                 />
 
-                <Box>
-                  <Text size="sm" fw={500} mb="xs">
-                    Price Range
-                  </Text>
-                  <RangeSlider
-                    min={0}
-                    max={1000}
-                    step={10}
-                    value={[filters.minPrice, filters.maxPrice]}
-                    onChange={handlePriceChange}
-                    marks={[
-                      { value: 0, label: "$0" },
-                      { value: 500, label: "$500" },
-                      { value: 1000, label: "$1000" },
-                    ]}
-                    mb="sm"
-                  />
-                  <Group position="apart" mb="md">
-                    <Text size="xs">${filters.minPrice}</Text>
-                    <Text size="xs">${filters.maxPrice}</Text>
-                  </Group>
-                </Box>
-
-                <Box>
-                  <Text size="sm" fw={500} mb="xs">
-                    Minimum Rating
-                  </Text>
-                  <RangeSlider
-                    min={0}
-                    max={5}
-                    step={0.5}
-                    value={[filters.minRating, 5]}
-                    onChange={([min]) => setFilter("minRating", min)}
-                    marks={[
-                      { value: 0, label: "0" },
-                      { value: 2.5, label: "2.5" },
-                      { value: 5, label: "5" },
-                    ]}
-                  />
-                </Box>
-
-                <Button
-                  leftSection={<X size={16} />}
-                  variant="subtle"
-                  onClick={resetFilters}
-                  fullWidth
-                  mt="md"
-                >
-                  Reset Filters
-                </Button>
-              </Box>
-            </Paper>
+                <MultiSelect
+                  label="Tags"
+                  placeholder="Select tags"
+                  data={[
+                    { value: "fuel-efficient", label: "Fuel Efficient" },
+                    { value: "electric", label: "Electric" },
+                    { value: "premium", label: "Premium" },
+                    { value: "family", label: "Family" },
+                    { value: "off-road", label: "Off-road" },
+                    { value: "compact", label: "Compact" },
+                    { value: "spacious", label: "Spacious" },
+                  ]}
+                  value={filters.tags}
+                  onChange={(value) => setFilter("tags", value)}
+                  searchable
+                  clearable
+                />
+              </Paper>
+            </Box>
           </Grid.Col>
 
-          <Grid.Col span={12} md={9}>
+          <Grid.Col span={{ base: 12, md: 9 }}>
             <Paper withBorder p="md" radius="md" mb="lg">
-              <Group position="apart">
+              <Group justify="apart">
                 <Text>
-                  Showing {filteredProducts.length} of {products.length}{" "}
-                  products
+                  {loading
+                    ? "Loading..."
+                    : `Showing ${filteredProducts.length} of ${products.length} vehicles`}
                 </Text>
 
                 <Group>
-                  {filters.search && (
+                  {/* Active filter badges */}
+                  {filters?.brands?.map((brand) => (
                     <Badge
+                      key={brand}
                       rightSection={
                         <ActionIcon
                           size="xs"
                           radius="xl"
-                          onClick={() => removeFilter("search")}
+                          onClick={() => handleCheckboxFilter("brands", brand)}
                         >
                           <X size={10} />
                         </ActionIcon>
                       }
                     >
-                      Search: {filters.search}
+                      Brand: {brand}
                     </Badge>
-                  )}
+                  ))}
 
-                  {filters.category && (
+                  {filters?.fuelTypes?.map((fuel) => (
                     <Badge
+                      key={fuel}
                       rightSection={
                         <ActionIcon
                           size="xs"
                           radius="xl"
-                          onClick={() => setFilter("category", "")}
+                          onClick={() =>
+                            handleCheckboxFilter("fuelTypes", fuel)
+                          }
                         >
                           <X size={10} />
                         </ActionIcon>
                       }
                     >
-                      Category: {filters.category}
+                      Fuel: {fuel}
                     </Badge>
-                  )}
-
-                  {filters.minRating > 0 && (
-                    <Badge
-                      rightSection={
-                        <ActionIcon
-                          size="xs"
-                          radius="xl"
-                          onClick={() => setFilter("minRating", 0)}
-                        >
-                          <X size={10} />
-                        </ActionIcon>
-                      }
-                    >
-                      Rating: ≥ {filters.minRating}
-                    </Badge>
-                  )}
+                  ))}
                 </Group>
               </Group>
             </Paper>
 
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader />
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <Paper withBorder p="xl" radius="md" ta="center">
                 <Text size="lg" fw={500} mb="md">
-                  No products found
+                  No vehicles found
                 </Text>
                 <Text c="dimmed">Try adjusting your filters</Text>
                 <Button
@@ -336,8 +682,8 @@ export default function FilteringPage() {
             ) : (
               <Grid>
                 {filteredProducts.map((product) => (
-                  <Grid.Col key={product.id} span={12} sm={6} lg={4}>
-                    <Card withBorder p="lg" radius="md">
+                  <Grid.Col key={product.id} span={12}>
+                    <Card withBorder p="lg" radius="md" h="100%">
                       <Card.Section
                         h={200}
                         py="md"
@@ -347,23 +693,27 @@ export default function FilteringPage() {
                           src={product.image || "/placeholder.svg"}
                           alt={product.title}
                           height={160}
-                          fit="contain"
+                          fit="cover"
                         />
                       </Card.Section>
 
-                      <Group position="apart" mt="md" mb="xs">
+                      <Group justify="apart" mt="md" mb="xs">
                         <Text fw={500} lineClamp={1}>
                           {product.title}
                         </Text>
-                        <Badge color="blue">${product.price.toFixed(2)}</Badge>
+                        <Badge color={product.inStock ? "green" : "red"}>
+                          {product.inStock ? "In Stock" : "Out of Stock"}
+                        </Badge>
                       </Group>
 
                       <Text size="sm" c="dimmed" lineClamp={2} mb="md">
                         {product.description}
                       </Text>
 
-                      <Group position="apart">
-                        <Badge color="green">{product.category}</Badge>
+                      <Group justify="apart" mb="md">
+                        <Text fw={700} size="lg">
+                          ₹{(product.price / 100000).toFixed(1)}L
+                        </Text>
                         <Group gap={5}>
                           <Star size={16} className="text-yellow-500" />
                           <Text size="sm">
@@ -371,6 +721,24 @@ export default function FilteringPage() {
                           </Text>
                         </Group>
                       </Group>
+
+                      <Group justify="apart" mb="md">
+                        <Badge variant="light">{product.brand}</Badge>
+                        <Badge variant="light">{product.fuelType}</Badge>
+                        <Badge variant="light">{product.seats} Seats</Badge>
+                      </Group>
+
+                      <Group gap={4} mb="md">
+                        {product.tags.slice(0, 2).map((tag) => (
+                          <Badge key={tag} size="xs" variant="outline">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </Group>
+
+                      <Button fullWidth variant="light">
+                        View Details
+                      </Button>
                     </Card>
                   </Grid.Col>
                 ))}
